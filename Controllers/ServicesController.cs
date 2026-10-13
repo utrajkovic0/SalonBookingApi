@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SalonBookingApi.Models;
+using SalonBookingApi.Services;
 
 namespace SalonBookingApi.Controllers
 {
@@ -8,36 +9,36 @@ namespace SalonBookingApi.Controllers
     [ApiController]
     public class ServicesController : ControllerBase
     {
-        private static List<Service> services = new()
+        private readonly BookingService _bookingService;
+
+        public ServicesController(BookingService bookingService)
         {
-            new Service { Id = 1, Name = "Sisanje", DurationMinutes = 30, Price = 1200.00 },
-            new Service { Id = 2, Name = "Brijanje", DurationMinutes = 30, Price = 800.00 }
-        };
+            _bookingService = bookingService;
+        }
 
         [HttpGet]
-        public List<Service> GetServices()
+        public ActionResult<List<Service>> GetServices()
         {
-            return services;
+            return Ok(_bookingService.GetServices());
         }
+
         [HttpGet("{id}")]
         public ActionResult<Service> GetServiceById(int id)
         {
-            Service service = services.FirstOrDefault(s => s.Id == id);
-
+            Service service = _bookingService.GetServiceById(id);
+            
             if (service == null)
             {
-                return NotFound(); 
+                return NotFound();
             }
 
-            return Ok(service);  
+            return Ok(service);
         }
 
         [HttpPost]
         public ActionResult<Service> CreateService(Service newService)
         {
-            newService.Id = services.Max(s => s.Id) + 1;
-            
-            services.Add(newService);
+            _bookingService.CreateService(newService);
 
             return CreatedAtAction(nameof(GetServiceById), new { id = newService.Id }, newService);
         }
@@ -45,31 +46,26 @@ namespace SalonBookingApi.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateService(int id, Service updatedService)
         {
-            Service service = services.FirstOrDefault(s => s.Id == id);
-
-            if (service == null)
+            bool result = _bookingService.UpdateService(id, updatedService);
+            
+            if (!result)
             {
                 return NotFound();
             }
 
-            service.Name = updatedService.Name;
-            service.DurationMinutes = updatedService.DurationMinutes;
-            service.Price = updatedService.Price;
-
             return NoContent();
-        }
+
+         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteService (int id)
         {
-            Service deletedService = services.FirstOrDefault(s => s.Id == id);
+            bool result = _bookingService.DeleteService(id);
 
-            if (deletedService == null)
+            if (!result)
             {
                 return NotFound();
             }
-
-            services.Remove(deletedService);
 
             return NoContent();
         }
