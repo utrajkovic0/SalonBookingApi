@@ -10,6 +10,8 @@ namespace SalonBookingApi.Services
             new Service { Id = 2, Name = "Brijanje", DurationMinutes = 30, Price = 800 }
         };
 
+        private List<Appointment> appointments = new();
+
         public List<Service> GetServices()
         {
             return services;
@@ -45,6 +47,45 @@ namespace SalonBookingApi.Services
 
             services.Remove(service);
             return true;
+        }
+
+        public List<Appointment> GetAppointments()
+        {
+            return appointments;
+        }
+        public Appointment GetAppointmentById(int id)
+        {
+            return appointments.FirstOrDefault(a => a.Id == id);
+        }
+
+        public Appointment BookAppointment(string clientName, int serviceId, DateTime dateTime)
+        {
+            Service service = GetServiceById(serviceId);
+
+            if (service == null)
+            {
+                return null;
+            }
+            if (dateTime < DateTime.Now)
+            {
+                return null;
+            }
+            if (appointments.Any(a => a.DateTime == dateTime))
+            {
+                return null;
+            }
+            Appointment appointment = new()
+            {
+                Id = appointments.Count == 0 ? 1 : appointments.Max(a => a.Id) + 1,   
+                ClientName = clientName,
+                ServiceId = serviceId,
+                DateTime = dateTime,
+                Service = service
+            };
+
+            appointments.Add(appointment);
+            
+            return appointment;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SalonBookingApi.Models;
+using SalonBookingApi.Services;
 
 namespace SalonBookingApi.Controllers
 {
@@ -8,18 +9,23 @@ namespace SalonBookingApi.Controllers
     [ApiController]
     public class AppointmentsController : ControllerBase
     {
-        private static List<Appointment> appointments = new();
+        private readonly BookingService _bookingService;
+
+        public AppointmentsController(BookingService bookingService)
+        {
+            _bookingService = bookingService;
+        }
 
 
         [HttpGet]
-        public List<Appointment> GetAppointments()
+        public ActionResult<List<Appointment>> GetAppointments()
         {
-            return appointments;
+            return Ok(_bookingService.GetAppointments());
         }
         [HttpGet("{id}")]
         public ActionResult<Appointment> GetAppointmentById(int id)
         {
-            Appointment appointment = appointments.FirstOrDefault(x => x.Id == id);
+            Appointment appointment = _bookingService.GetAppointmentById(id);
 
             if (appointment == null)
             {
@@ -27,6 +33,20 @@ namespace SalonBookingApi.Controllers
             }
 
             return Ok(appointment);
+        }
+
+        [HttpPost]
+        public ActionResult<Appointment> BookAppointment(Appointment request)
+        {
+            Appointment appointment = _bookingService.BookAppointment(
+                request.ClientName, request.ServiceId, request.DateTime);
+
+            if (appointment == null)
+            {
+                return BadRequest("Nije moguce zakazati termin");
+            }
+
+            return CreatedAtAction(nameof(GetAppointmentById), new { id = appointment.Id }, appointment);
         }
     }
 }
