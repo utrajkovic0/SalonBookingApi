@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using SalonBookingApi.Data;
 using SalonBookingApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,9 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddSingleton<BookingService>();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=salon.db"));
 
 var app = builder.Build();
 

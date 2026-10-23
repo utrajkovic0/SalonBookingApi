@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SalonBookingApi.DTOs;
 using SalonBookingApi.Models;
 using SalonBookingApi.Services;
 
@@ -36,7 +37,7 @@ namespace SalonBookingApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Appointment> BookAppointment(Appointment request)
+        public ActionResult<Appointment> BookAppointment(CreateAppointmentDto request)
         {
             Appointment appointment = _bookingService.BookAppointment(
                 request.ClientName, request.ServiceId, request.DateTime);
