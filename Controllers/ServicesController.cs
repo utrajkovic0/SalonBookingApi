@@ -17,15 +17,15 @@ namespace SalonBookingApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Service>> GetServices()
+        public async Task<ActionResult<List<Service>>> GetServices()
         {
-            return Ok(_bookingService.GetServices());
+            return Ok(await _bookingService.GetServicesAsync());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Service> GetServiceById(int id)
+        public async Task<ActionResult<Service>> GetServiceById(int id)
         {
-            Service service = _bookingService.GetServiceById(id);
+            Service service = await _bookingService.GetServiceByIdAsync(id);
             
             if (service == null)
             {
@@ -36,17 +36,17 @@ namespace SalonBookingApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Service> CreateService(Service newService)
+        public async Task<ActionResult<Service>> CreateService(Service newService)
         {
-            _bookingService.CreateService(newService);
+            await _bookingService.CreateServiceAsync(newService);
 
             return CreatedAtAction(nameof(GetServiceById), new { id = newService.Id }, newService);
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateService(int id, Service updatedService)
+        public async Task<IActionResult> UpdateService(int id, Service updatedService)
         {
-            bool result = _bookingService.UpdateService(id, updatedService);
+            bool result = await _bookingService.UpdateServiceAsync(id, updatedService);
             
             if (!result)
             {
@@ -58,9 +58,9 @@ namespace SalonBookingApi.Controllers
          }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteService (int id)
+        public async Task<IActionResult> DeleteService (int id)
         {
-            bool result = _bookingService.DeleteService(id);
+            bool result =await _bookingService.DeleteServiceAsync(id);
 
             if (!result)
             {

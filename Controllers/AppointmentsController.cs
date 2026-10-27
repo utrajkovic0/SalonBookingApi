@@ -19,14 +19,14 @@ namespace SalonBookingApi.Controllers
 
 
         [HttpGet]
-        public ActionResult<List<Appointment>> GetAppointments()
+        public async Task<ActionResult<List<Appointment>>> GetAppointments()
         {
-            return Ok(_bookingService.GetAppointments());
+            return Ok(await _bookingService.GetAppointmentAsync());
         }
         [HttpGet("{id}")]
-        public ActionResult<Appointment> GetAppointmentById(int id)
+        public async Task<ActionResult<Appointment>> GetAppointmentById(int id)
         {
-            Appointment appointment = _bookingService.GetAppointmentById(id);
+            Appointment appointment = await _bookingService.GetAppointmentByIdAsync(id);
 
             if (appointment == null)
             {
@@ -37,9 +37,9 @@ namespace SalonBookingApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Appointment> BookAppointment(CreateAppointmentDto request)
+        public async Task<ActionResult<Appointment>> BookAppointment(CreateAppointmentDto request)
         {
-            Appointment appointment = _bookingService.BookAppointment(
+            Appointment appointment = await _bookingService.BookAppointmentAsync(
                 request.ClientName, request.ServiceId, request.DateTime);
 
             if (appointment == null)

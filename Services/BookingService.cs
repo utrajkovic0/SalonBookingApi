@@ -1,66 +1,69 @@
-﻿using SalonBookingApi.Models;
+﻿using SalonBookingApi.Data;
+using SalonBookingApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SalonBookingApi.Services
 {
     public class BookingService
     {
-        private List<Service> services = new()
+        private readonly AppDbContext _context;
+        
+        public BookingService (AppDbContext context)
         {
-            new Service { Id = 1, Name = "Sisanje", DurationMinutes = 30, Price = 1200 },
-            new Service { Id = 2, Name = "Brijanje", DurationMinutes = 30, Price = 800 }
-        };
-
-        private List<Appointment> appointments = new();
-
-        public List<Service> GetServices()
-        {
-            return services;
+            _context = context;
         }
 
-        public Service GetServiceById(int id)
+        public async Task<List<Service>> GetServicesAsync()
         {
-            return services.FirstOrDefault(s => s.Id == id);
+            return await _context.Services.ToListAsync();
         }
 
-        public Service CreateService(Service newService)
+        public async Task<Service> GetServiceByIdAsync(int id)
         {
-            newService.Id = services.Count == 0 ? 1 : services.Max(s => s.Id) + 1;
-            services.Add(newService);
+            return await _context.Services.FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public async Task<Service> CreateServiceAsync(Service newService)
+        {
+            _context.Services.Add(newService);
+            await _context.SaveChangesAsync();
             return newService;
         }
 
-        public bool UpdateService(int id, Service updatedService)
+        public async Task<bool> UpdateServiceAsync(int id, Service updatedService)
         {
-            Service service = services.FirstOrDefault(s => s.Id == id);
+            var service = await _context.Services.FirstOrDefaultAsync(s => s.Id == id);
             if (service == null) return false;
 
             service.Name = updatedService.Name;
             service.DurationMinutes = updatedService.DurationMinutes;
             service.Price = updatedService.Price;
+            await _context.SaveChangesAsync();
             return true;
         }
 
-        public bool DeleteService(int id)
+        public async Task<bool> DeleteServiceAsync(int id)
         {
-            Service service = services.FirstOrDefault(s => s.Id == id);
+            var service = await _context.Services.FirstOrDefaultAsync(s => s.Id == id);
             if (service == null) return false;
 
-            services.Remove(service);
+            _context.Services.Remove(service);
+            await _context.SaveChangesAsync();
             return true;
         }
 
-        public List<Appointment> GetAppointments()
+        public async Task<List<Appointment>> GetAppointmentAsync()
         {
-            return appointments;
+            return await _context.Appointments.ToListAsync();
         }
-        public Appointment GetAppointmentById(int id)
+        public async Task<Appointment> GetAppointmentByIdAsync(int id)
         {
-            return appointments.FirstOrDefault(a => a.Id == id);
+            return await _context.Appointments.FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        public Appointment BookAppointment(string clientName, int serviceId, DateTime dateTime)
+        public async Task<Appointment> BookAppointmentAsync(string clientName, int serviceId, DateTime dateTime)
         {
-            Service service = GetServiceById(serviceId);
+            var service = await GetServiceByIdAsync(serviceId);
 
             if (service == null)
             {
@@ -70,21 +73,20 @@ namespace SalonBookingApi.Services
             {
                 return null;
             }
-            if (appointments.Any(a => a.DateTime == dateTime))
+            if (await _context.Appointments.AnyAsync(a => a.DateTime == dateTime))
             {
                 return null;
             }
             Appointment appointment = new()
             {
-                Id = appointments.Count == 0 ? 1 : appointments.Max(a => a.Id) + 1,   
                 ClientName = clientName,
                 ServiceId = serviceId,
                 DateTime = dateTime,
                 Service = service
             };
 
-            appointments.Add(appointment);
-            
+            await _context.Appointments.AddAsync(appointment);
+            await _context.SaveChangesAsync();
             return appointment;
         }
     }
