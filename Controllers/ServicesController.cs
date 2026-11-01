@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SalonBookingApi.DTOs;
 using SalonBookingApi.Models;
 using SalonBookingApi.Services;
 
@@ -36,8 +37,15 @@ namespace SalonBookingApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Service>> CreateService(Service newService)
+        public async Task<ActionResult<Service>> CreateService(CreateServiceDto request)
         {
+            Service newService = new()
+            {
+                Name = request.Name,
+                DurationMinutes = request.DurationMinutes,
+                Price = request.Price,
+            };
+
             await _bookingService.CreateServiceAsync(newService);
 
             return CreatedAtAction(nameof(GetServiceById), new { id = newService.Id }, newService);
