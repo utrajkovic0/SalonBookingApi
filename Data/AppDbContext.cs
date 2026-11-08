@@ -10,5 +10,6 @@ namespace SalonBookingApi.Data
         }
         public DbSet<Service> Services { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

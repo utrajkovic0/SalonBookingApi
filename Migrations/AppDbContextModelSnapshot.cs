@@ -61,6 +61,29 @@ namespace SalonBookingApi.Migrations
                     b.ToTable("Services");
                 });
 
+            modelBuilder.Entity("SalonBookingApi.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("SalonBookingApi.Models.Appointment", b =>
                 {
                     b.HasOne("SalonBookingApi.Models.Service", "Service")
